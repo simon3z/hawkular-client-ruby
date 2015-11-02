@@ -196,8 +196,12 @@ module Hawkular::Metrics
 
       # get rate for given metric
       # @param id [String] metric ID
-      def get_rate(id: nil)
-        @client.http_get("/#{@resource}/#{id}/rate")
+      def get_rate(id, starts: nil, ends: nil, bucketDuration: nil)
+        path = "/#{@resource}/#{ERB::Util.url_encode(id)}/rate"
+        params = { start: starts, end: ends, bucketDuration: bucketDuration }
+        resp = @client.http_get(path + '?' + encode_params(params))
+        # API returns no content (empty Hash) instead of empty array
+        resp.is_a?(Array) ? resp : []
       end
     end
 
